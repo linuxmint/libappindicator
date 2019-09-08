@@ -31,8 +31,8 @@ GType test_libappindicator_fallback_item_get_type (void);
 
 static void test_libappindicator_fallback_item_class_init (TestLibappindicatorFallbackItemClass *klass);
 static void test_libappindicator_fallback_item_init       (TestLibappindicatorFallbackItem *self);
-static GtkStatusIcon * fallback (AppIndicator * indicator);
-static void unfallback (AppIndicator * indicator, GtkStatusIcon * status_icon);
+static XAppStatusIcon * fallback (AppIndicator * indicator);
+static void unfallback (AppIndicator * indicator, XAppStatusIcon * status_icon);
 
 G_DEFINE_TYPE (TestLibappindicatorFallbackItem, test_libappindicator_fallback_item, APP_INDICATOR_TYPE);
 
@@ -63,7 +63,7 @@ enum {
 
 gint state = STATE_INIT;
 
-static GtkStatusIcon *
+static XAppStatusIcon *
 fallback (AppIndicator * indicator)
 {
 	g_debug("Fallback");
@@ -75,11 +75,11 @@ fallback (AppIndicator * indicator)
 		g_debug("Error, fallback in state: %d", state);
 		passed = FALSE;
 	}
-	return (GtkStatusIcon *)5;
+	return (XAppStatusIcon *)5;
 }
 
 static void
-unfallback (AppIndicator * indicator, GtkStatusIcon * status_icon)
+unfallback (AppIndicator * indicator, XAppStatusIcon * status_icon)
 {
 	g_debug("Unfallback");
 	if (state == STATE_FALLBACK) {
