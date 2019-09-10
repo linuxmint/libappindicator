@@ -52,6 +52,8 @@ License version 3 and version 2.1 along with this program.  If not, see
 
 #define PANEL_ICON_SUFFIX  "panel"
 
+#define FALLBACK_ICON "image-missing"
+
 /**
  * AppIndicatorPrivate:
  * All of the private data in an instance of an application indicator.
@@ -1614,7 +1616,7 @@ status_icon_changes (AppIndicator * self, gpointer data)
 	const gchar *theme_path = self->priv->absolute_icon_theme_path ?
 	                            self->priv->absolute_icon_theme_path :
 	                            self->priv->icon_theme_path;
-
+    g_printerr ("theme path??? %s\n", theme_path);
 	if (theme_path != NULL) {
 		gchar **path;
 		gint n_elements, i;
@@ -1663,7 +1665,36 @@ status_icon_changes (AppIndicator * self, gpointer data)
 			if (longname != NULL && gtk_icon_theme_has_icon (icon_theme, longname)) {
 				xapp_status_icon_set_icon_name(icon, longname);
 			} else {
-				xapp_status_icon_set_icon_name(icon, icon_name);
+                if (gtk_icon_theme_has_icon (icon_theme, icon_name)) {
+                    xapp_status_icon_set_icon_name(icon, icon_name);
+                } else {
+                    gint i;
+                    gchar *icon_path;
+
+                    const gchar *extensions[] = {
+                        "png",
+                        "svg",
+                    };
+
+                    for (i = 0; i < G_N_ELEMENTS (extensions); i++) {
+                        icon_path = g_strdup_printf ("%s/%s.%s", theme_path, icon_name, extensions[i]);
+
+                        if (g_file_test (icon_path, G_FILE_TEST_EXISTS)) {
+                            break;
+                        }
+
+                        g_clear_pointer (&icon_path, g_free);
+                    }
+
+                    if (icon_path) {
+                        xapp_status_icon_set_icon_name (icon, icon_path);
+                        g_free (icon_path);
+                    } else {
+                        // Should we do this??  Otherwise there's a blank (but reactive)
+                        // space in the panel
+                        xapp_status_icon_set_icon_name (icon, FALLBACK_ICON);
+                    }
+                }
 			}
 
 			g_free(longname);
