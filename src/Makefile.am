@@ -76,7 +76,7 @@ libappindicator_la_LDFLAGS = \
 libappindicator_la_CFLAGS = \
 	$(LIBRARY_CFLAGS) \
 	$(COVERAGE_CFLAGS) \
-	-Wall -Werror -Wno-error=deprecated-declarations \
+	-Wall -Wno-error=deprecated-declarations \
 	-DG_LOG_DOMAIN=\"libappindicator\"
 
 libappindicator_la_LIBADD = \

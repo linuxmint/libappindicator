@@ -31,6 +31,8 @@ License version 3 and version 2.1 along with this program.  If not, see
 #include "config.h"
 #endif
 
+#include <gdk/gdk.h>
+
 #include <libdbusmenu-glib/menuitem.h>
 #include <libdbusmenu-glib/server.h>
 #include <libdbusmenu-gtk/client.h>
@@ -193,7 +195,6 @@ static void status_icon_status_wrapper (AppIndicator * self, const gchar * statu
 static gboolean scroll_event_wrapper(GtkWidget *status_icon, GdkEventScroll *event, gpointer user_data);
 static gboolean middle_click_wrapper(GtkWidget *status_icon, GdkEventButton *event, gpointer user_data);
 static void status_icon_changes (AppIndicator * self, gpointer data);
-static void status_icon_activate (XAppStatusIcon * icon, gpointer data);
 static void status_icon_menu_activate (XAppStatusIcon *status_icon,
                                        gint x,
                                        gint y,
@@ -1708,24 +1709,74 @@ status_icon_changes (AppIndicator * self, gpointer data)
 	return;
 }
 
+typedef struct {
+    gint    x;
+    gint    y;
+    gint    position;
+    guint32 t;
+} PositionData;
+
+static void
+position_menu_cb (GtkMenu  *menu,
+                  gint     *x,
+                  gint     *y,
+                  gboolean *push_in,
+                  gpointer  user_data)
+{
+    GtkAllocation alloc;
+    PositionData *position_data = (PositionData *) user_data;
+
+    *x = position_data->x;
+    *y = position_data->y;
+
+    gtk_widget_get_allocation (GTK_WIDGET (menu), &alloc);
+
+    switch (position_data->position) {
+        case GTK_POS_BOTTOM:
+            *y = *y - alloc.height;
+            break;
+        case GTK_POS_RIGHT:
+            *x = *x - alloc.width;
+            break;
+    }
+
+    *push_in = TRUE;
+}
+
 /* Handles the activate action by the status icon by showing
    the menu in a popup. */
 static void
-status_icon_activate (XAppStatusIcon * icon, gpointer data)
+status_icon_activate (XAppStatusIcon *icon,
+                      gint            x,
+                      gint            y,
+                      gint            button,
+                      gint            activate_time,
+                      gint            orientation,
+                      gpointer        user_data)
 {
-	GtkMenu * menu = app_indicator_get_menu(APP_INDICATOR(data));
+	GtkMenu *menu = app_indicator_get_menu (APP_INDICATOR (user_data));
 	if (menu == NULL)
 		return;
 
-	gtk_menu_popup(menu,
-	               NULL, /* Parent Menu */
-	               NULL, /* Parent item */
-	               gtk_status_icon_position_menu,
-	               icon,
-	               1, /* Button */
-	               gtk_get_current_event_time());
+    PositionData position_data = {
+        x, y, orientation, activate_time
+    };
 
-	return;
+    GdkDisplay *display;
+    GdkDevice *pointer;
+
+    display = gdk_display_get_default ();
+    pointer = gdk_device_manager_get_client_pointer (gdk_display_get_device_manager (display));
+
+    gtk_menu_popup_for_device (menu,
+                               pointer,
+                               NULL,
+                               NULL,
+                               position_menu_cb,
+                               &position_data,
+                               NULL,
+                               button,
+                               time);
 }
 
 /* Handles the right-click action by the status icon by showing
@@ -1739,7 +1790,12 @@ status_icon_menu_activate (XAppStatusIcon *status_icon,
                            gint orientation,
                            gpointer user_data)
 {
-	status_icon_activate(status_icon, user_data);
+    status_icon_activate (status_icon,
+                          x, y,
+                          button,
+                          activate_time,
+                          orientation,
+                          user_data);
 }
 
 /* Removes the status icon as the application indicator area
@@ -1749,8 +1805,8 @@ unfallback (AppIndicator * self, XAppStatusIcon * status_icon)
 {
 	g_signal_handlers_disconnect_by_func(G_OBJECT(self), status_icon_status_wrapper, status_icon);
 	g_signal_handlers_disconnect_by_func(G_OBJECT(self), status_icon_changes, status_icon);
-	g_signal_handlers_disconnect_by_func(G_OBJECT(self), scroll_event_wrapper, status_icon);
-	g_signal_handlers_disconnect_by_func(G_OBJECT(self), middle_click_wrapper, status_icon);
+	// g_signal_handlers_disconnect_by_func(G_OBJECT(self), scroll_event_wrapper, status_icon);
+	// g_signal_handlers_disconnect_by_func(G_OBJECT(self), middle_click_wrapper, status_icon);
 	xapp_status_icon_set_visible(status_icon, FALSE);
 	g_object_unref(G_OBJECT(status_icon));
 	return;
