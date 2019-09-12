@@ -1617,7 +1617,7 @@ status_icon_changes (AppIndicator * self, gpointer data)
 	const gchar *theme_path = self->priv->absolute_icon_theme_path ?
 	                            self->priv->absolute_icon_theme_path :
 	                            self->priv->icon_theme_path;
-    g_printerr ("theme path??? %s\n", theme_path);
+
 	if (theme_path != NULL) {
 		gchar **path;
 		gint n_elements, i;
