@@ -198,8 +198,8 @@ static void status_icon_changes (AppIndicator * self, gpointer data);
 static void status_icon_menu_activate (XAppStatusIcon *status_icon,
                                        gint x,
                                        gint y,
-                                       gint button,
-                                       gint activate_time,
+                                       guint button,
+                                       guint activate_time,
                                        gint orientation,
                                        gpointer user_data);
 static void unfallback (AppIndicator * self, XAppStatusIcon * status_icon);
@@ -1542,13 +1542,20 @@ fallback (AppIndicator * self)
 	if (title != NULL) {
 		xapp_status_icon_set_tooltip_text (icon, title);
 	}
-	
+
+    /* Tell xapp-status-icon where this is coming from.  It will change the behavior
+     * of left clicks accordingly (to open the menu instead of some sort of 'activation') */
+    g_object_set_data (G_OBJECT (icon), "app-indicator", GINT_TO_POINTER (1));
+
 	g_signal_connect(G_OBJECT(self), APP_INDICATOR_SIGNAL_NEW_STATUS,
 		G_CALLBACK(status_icon_status_wrapper), icon);
 	g_signal_connect(G_OBJECT(self), APP_INDICATOR_SIGNAL_NEW_ICON,
 		G_CALLBACK(status_icon_changes), icon);
 	g_signal_connect(G_OBJECT(self), APP_INDICATOR_SIGNAL_NEW_ATTENTION_ICON,
 		G_CALLBACK(status_icon_changes), icon);
+
+    xapp_status_icon_set_menu (icon,
+                               app_indicator_get_menu (self));
 
 	status_icon_changes(self, icon);
 
@@ -1743,20 +1750,36 @@ position_menu_cb (GtkMenu  *menu,
     *push_in = TRUE;
 }
 
+#define ORIENTATION_UNKNOWN -1
+
 /* Handles the activate action by the status icon by showing
    the menu in a popup. */
 static void
 status_icon_activate (XAppStatusIcon *icon,
                       gint            x,
                       gint            y,
-                      gint            button,
-                      gint            activate_time,
+                      guint           button,
+                      guint           activate_time,
                       gint            orientation,
                       gpointer        user_data)
 {
 	GtkMenu *menu = app_indicator_get_menu (APP_INDICATOR (user_data));
 	if (menu == NULL)
 		return;
+
+    /* This shouldn't ever happen I think */
+    if (orientation == ORIENTATION_UNKNOWN) {
+        g_warning ("appindicator activating with no positioning data");
+        gtk_menu_popup (menu,
+                        NULL,
+                        NULL,
+                        gtk_status_icon_position_menu,
+                        icon,
+                        1,
+                        gtk_get_current_event_time ());
+
+        return;
+    }
 
     PositionData position_data = {
         x, y, orientation, activate_time
@@ -1785,8 +1808,8 @@ static void
 status_icon_menu_activate (XAppStatusIcon *status_icon,
                            gint x,
                            gint y,
-                           gint button,
-                           gint activate_time,
+                           guint button,
+                           guint activate_time,
                            gint orientation,
                            gpointer user_data)
 {
@@ -2322,6 +2345,10 @@ app_indicator_set_menu (AppIndicator *self, GtkMenu *menu)
 
   priv->menu = GTK_WIDGET (menu);
   g_object_ref_sink (priv->menu);
+
+  if (self->priv->status_icon) {
+    xapp_status_icon_set_menu (self->priv->status_icon, menu);
+  }
 
   setup_dbusmenu (self);
 
