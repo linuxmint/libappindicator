@@ -1543,6 +1543,8 @@ fallback (AppIndicator * self)
 		xapp_status_icon_set_tooltip_text (icon, title);
 	}
 
+    xapp_status_icon_set_label (icon, app_indicator_get_label (self));
+
     /* Tell xapp-status-icon where this is coming from.  It will change the behavior
      * of left clicks accordingly (to open the menu instead of some sort of 'activation') */
     g_object_set_data (G_OBJECT (icon), "app-indicator", GINT_TO_POINTER (1));
@@ -2174,6 +2176,10 @@ app_indicator_set_label (AppIndicator *self, const gchar * label, const gchar * 
 	             PROP_LABEL_S,       label == NULL ? "" : label,
 	             PROP_LABEL_GUIDE_S, guide == NULL ? "" : guide,
 	             NULL);
+
+    if (self->priv->status_icon) {
+        xapp_status_icon_set_label (self->priv->status_icon, app_indicator_get_label (self));
+    }
 
 	return;
 }
