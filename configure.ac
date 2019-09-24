@@ -67,8 +67,7 @@ AS_IF([test "x$with_gtk" = x3],
                                      glib-2.0 >= $GLIB_REQUIRED_VERSION
                                      gio-2.0 >= $GIO_REQUIRED_VERSION
                                      indicator-0.4 >= $INDICATOR_REQUIRED_VERSION
-                                     dbusmenu-gtk-0.4 >= $DBUSMENUGTK_REQUIRED_VERSION
-                                     xapp)
+                                     dbusmenu-gtk-0.4 >= $DBUSMENUGTK_REQUIRED_VERSION)
         ],
       [AC_MSG_FAILURE([Value for --with-gtk was neither 2 nor 3])]
 )
@@ -198,7 +197,6 @@ PKG_CHECK_MODULES(APPINDICATOR_PYTHON,
 					pygtk-2.0 >= $PYGTK_REQUIRED
 					gtk+-2.0 >= $GTK_REQUIRED_VERSION
 					pygobject-2.0 >= $PYGOBJECT_REQUIRED
-                    xapp
                   ])
 
 AC_MSG_CHECKING(for pygtk defs)
@@ -216,7 +214,7 @@ AC_MSG_RESULT($PYGTK_CODEGEN)
 #########################
 AC_ARG_ENABLE([tests],
 	AC_HELP_STRING([--disable-tests], [Disable tests]),,
-	[enable_tests=no])
+	[enable_tests=yes])
 AM_CONDITIONAL([WANT_TESTS], [test "x$enable_tests" != "xno"])
 
 ###########################

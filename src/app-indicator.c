@@ -1801,7 +1801,7 @@ status_icon_activate (XAppStatusIcon *icon,
                                &position_data,
                                NULL,
                                button,
-                               time);
+                               activate_time);
 }
 
 /* Handles the right-click action by the status icon by showing

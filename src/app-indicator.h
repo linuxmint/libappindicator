@@ -31,7 +31,14 @@ License version 3 and version 2.1 along with this program.  If not, see
 #define __APP_INDICATOR_H__
 
 #include <gtk/gtk.h>
+
+#if GTK_MAJOR_VERSION == 3
+#define USE_XAPP_FALLBACK 1
+#endif
+
+#ifdef USE_XAPP_FALLBACK
 #include <libxapp/xapp-status-icon.h>
+#endif
 
 G_BEGIN_DECLS
 
@@ -219,9 +226,17 @@ struct _AppIndicatorClass {
 	void (*app_indicator_reserved_ats)(void);
 
 	/* Overridable Functions */
-	XAppStatusIcon * (*fallback)     (AppIndicator * indicator);
-	void (*unfallback)              (AppIndicator * indicator,
-	                                 XAppStatusIcon * status_icon);
+#ifdef USE_XAPP_FALLBACK
+    XAppStatusIcon * (*fallback)     (AppIndicator * indicator);
+    void (*unfallback)              (AppIndicator * indicator,
+                                     XAppStatusIcon * status_icon);
+
+#else
+    GtkStatusIcon * (*fallback)     (AppIndicator * indicator);
+    void (*unfallback)              (AppIndicator * indicator,
+                                     GtkStatusIcon * status_icon);
+
+#endif
 
 	/* Reserved */
 	void (*app_indicator_reserved_1)(void);

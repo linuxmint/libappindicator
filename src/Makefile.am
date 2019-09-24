@@ -57,7 +57,6 @@ libappindicatorinclude_HEADERS = \
 libappindicator_la_SOURCES = \
 	$(libappindicator_headers) \
 	app-indicator-enum-types.c \
-	app-indicator.c \
 	application-service-marshal.c \
 	dbus-shared.h \
 	generate-id.h \
@@ -66,6 +65,14 @@ libappindicator_la_SOURCES = \
 	gen-notification-item.xml.c \
 	gen-notification-watcher.xml.h \
 	gen-notification-watcher.xml.c
+
+if USE_GTK3
+libappindicator_la_SOURCES += \
+	app-indicator.c
+else
+libappindicator_la_SOURCES += \
+	app-indicator-gtk2.c
+endif
 
 libappindicator_la_LDFLAGS = \
 	$(COVERAGE_LDFLAGS) \
@@ -149,9 +156,15 @@ INTROSPECTION_COMPILER_ARGS = --includedir=$(builddir)
 
 if HAVE_INTROSPECTION
 
+if USE_GTK3
 introspection_sources = \
 	$(addprefix $(srcdir)/,app-indicator.c) \
 	$(addprefix $(srcdir)/,$(libappindicator_headers))
+else
+introspection_sources = \
+	$(addprefix $(srcdir)/,app-indicator-gtk2.c) \
+	$(addprefix $(srcdir)/,$(libappindicator_headers))
+endif
 
 AppIndicator$(VER)-0.1.gir: libappindicator$(VER).la
 
