@@ -1,3 +1,17 @@
+libappindicator (12.10.1+18.04.20180322.1-1mint1) tricia; urgency=medium
+
+  [ Michael Webster ]
+  * Add support for XAppStatusIcon.
+  * app-indicator.c: Attempt to use an absolute path based on any application-provided icon location.
+  * app-indicator.c: Make popup menu position respect position type and coordinates from XAppStatusIcon.
+  * app-indicator.c: Remove a debugging line.
+  * Have an acceptable fallback popup when we have little data.
+  * xapp-status-icon: set the label on the XAppStatusIcon if the indicator has one.
+  * Fix build for gtk2
+  * app-indicator.c: Remove all menu positioning and handling code for fallback - it is now entirely handled in XAppStatusIcon.
+
+ -- Clement Lefebvre <root@linuxmint.com>  Wed, 16 Oct 2019 14:32:30 +0100
+
 libappindicator (12.10.1+18.04.20180322.1-0ubuntu1) bionic; urgency=medium
 
   [ Unit 193 ]
