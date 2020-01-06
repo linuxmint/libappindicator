@@ -1535,7 +1535,7 @@ status_icon_menu_button_activate (XAppStatusIcon *status_icon,
 {
     AppIndicator *self = APP_INDICATOR (user_data);
 
-    if (button == GDK_BUTTON_MIDDLE) {
+    if (button == GDK_BUTTON_PRIMARY || button == GDK_BUTTON_MIDDLE) {
         GtkWidget *menuitem = self->priv->sec_activate_target;
 
         if (menuitem != NULL &&
@@ -1544,6 +1544,17 @@ status_icon_menu_button_activate (XAppStatusIcon *status_icon,
         {
             gtk_widget_activate (menuitem);
         }
+    }
+}
+
+static void
+status_icon_set_has_secondary_activate (XAppStatusIcon *icon,
+                                        gboolean        has)
+{
+    if (icon != NULL)
+    {
+        g_object_set_data (G_OBJECT (icon),
+                           "app-indicator-has-secondary-activate", GINT_TO_POINTER (has));
     }
 }
 
@@ -1567,6 +1578,8 @@ fallback (AppIndicator * self)
      * of left clicks accordingly (to open the menu instead of some sort of 'activation') */
     g_object_set_data (G_OBJECT (icon), "app-indicator", GINT_TO_POINTER (1));
 
+    status_icon_set_has_secondary_activate (icon, self->priv->sec_activate_enabled);
+
 	g_signal_connect(G_OBJECT(self), APP_INDICATOR_SIGNAL_NEW_STATUS,
 		G_CALLBACK(status_icon_status_wrapper), icon);
 	g_signal_connect(G_OBJECT(self), APP_INDICATOR_SIGNAL_NEW_ICON,
@@ -1574,7 +1587,7 @@ fallback (AppIndicator * self)
 	g_signal_connect(G_OBJECT(self), APP_INDICATOR_SIGNAL_NEW_ATTENTION_ICON,
 		G_CALLBACK(status_icon_changes), icon);
 
-    xapp_status_icon_set_primary_menu (icon, app_indicator_get_menu (self));
+    xapp_status_icon_set_secondary_menu (icon, app_indicator_get_menu (self));
 
 	status_icon_changes(self, icon);
 
@@ -1766,6 +1779,8 @@ sec_activate_target_parent_changed(GtkWidget *menuitem, GtkWidget *old_parent,
 	g_return_if_fail(IS_APP_INDICATOR(data));
 	AppIndicator *self = data;
 	self->priv->sec_activate_enabled = widget_is_menu_child(self, menuitem);
+
+    status_icon_set_has_secondary_activate (self->priv->status_icon, self->priv->sec_activate_enabled);
 }
 
 
@@ -2231,12 +2246,13 @@ app_indicator_set_menu (AppIndicator *self, GtkMenu *menu)
   g_object_ref_sink (priv->menu);
 
   if (self->priv->status_icon) {
-    xapp_status_icon_set_primary_menu (self->priv->status_icon, menu);
+    xapp_status_icon_set_secondary_menu (self->priv->status_icon, menu);
   }
 
   setup_dbusmenu (self);
 
   priv->sec_activate_enabled = widget_is_menu_child (self, priv->sec_activate_target);
+  status_icon_set_has_secondary_activate (self->priv->status_icon, priv->sec_activate_enabled);
 
   check_connect (self);
 
@@ -2290,6 +2306,7 @@ app_indicator_set_secondary_activate_target (AppIndicator *self, GtkWidget *menu
 		                                      self);
 		g_object_unref(G_OBJECT(priv->sec_activate_target));
 		priv->sec_activate_target = NULL;
+        status_icon_set_has_secondary_activate (priv->status_icon, FALSE);
 	}
 
 	if (menuitem == NULL) {
@@ -2300,6 +2317,7 @@ app_indicator_set_secondary_activate_target (AppIndicator *self, GtkWidget *menu
 
 	priv->sec_activate_target = g_object_ref(menuitem);
 	priv->sec_activate_enabled = widget_is_menu_child(self, menuitem);
+    status_icon_set_has_secondary_activate (priv->status_icon, priv->sec_activate_enabled);
 	g_signal_connect(menuitem, "parent-set", G_CALLBACK(sec_activate_target_parent_changed), self);
 }
 
