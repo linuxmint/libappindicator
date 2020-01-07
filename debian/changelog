@@ -1,3 +1,11 @@
+libappindicator (12.10.1+18.04.20180322.1-1mint2) tricia; urgency=medium
+
+  [ Michael Webster ]
+  * Add xapp to the pkg-config file for gtk3, and add a minimum version to the check in configure.ac.
+  * app-indicator.c: Flag an xapp icon when a 'secondary activation' action (middle-click) has been set.
+
+ -- Clement Lefebvre <root@linuxmint.com>  Tue, 07 Jan 2020 10:20:07 +0000
+
 libappindicator (12.10.1+18.04.20180322.1-1mint1) tricia; urgency=medium
 
   [ Michael Webster ]
