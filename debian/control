@@ -1,11 +1,9 @@
 Source: libappindicator
 Section: gnome
 Priority: optional
-XS-Python-Version: all
 Maintainer: Ubuntu Desktop Team <ubuntu-desktop@lists.ubuntu.com>
 Build-Depends: debhelper (>= 9),
                dh-autoreconf,
-               python-all-dev,
                at-spi2-core,
                cli-common-dev (>= 0.5.7) [!arm64 !ppc64el],
                gnome-common,
@@ -21,7 +19,6 @@ Build-Depends: debhelper (>= 9),
                libglib2.0-dev (>= 2.35.4),
                libgtk-3-dev (>= 2.91.3),
                libgtk2.0-dev (>= 2.12.0),
-               python-gtk2-dev,
                gtk-sharp2-gapi [!arm64 !ppc64el],
                libgtk2.0-cil-dev [!arm64 !ppc64el],
                libdbus-glib-1-dev (>= 0.82),
@@ -40,24 +37,9 @@ Homepage: https://launchpad.net/libappindicator
 Vcs-Bzr: https://code.launchpad.net/~indicator-applet-developers/libappindicator/trunk.16.10
 Vcs-Browser: https://bazaar.launchpad.net/~indicator-applet-developers/libappindicator/trunk.16.10/files
 
-Package: python-appindicator
-Section: python
-Architecture: any
-XB-Python-Version: ${python:Versions}
-Depends: ${shlibs:Depends},
-         ${misc:Depends},
-         ${python:Depends},
-         libappindicator1 (= ${binary:Version}),
-         python-gobject,
-Provides: ${python:Provides},
-Description: Python bindings for libappindicator
- This package provides Python bindings so that you can use libappindicator from 
- a Python program.
-
 Package: libappindicator1
 Section: libs
 Architecture: any
-Pre-Depends: multiarch-support,
 Depends: ${shlibs:Depends},
          ${misc:Depends},
 Suggests: indicator-application (>= 0.2.93),
@@ -67,22 +49,11 @@ Description: Application Indicators
  .
  This package contains shared libraries to be used by applications.
 
-Package: gir1.2-appindicator-0.1
-Section: introspection
-Architecture: any
-Depends: ${misc:Depends},
-         ${gir:Depends},
-Description: Typelib files for libappindicator1.
- .
- This package can be used by other packages using the GIRepository format
- to generate dynamic bindings.
-
 Package: libappindicator-dev
 Section: libdevel
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends},
-         gir1.2-appindicator-0.1 (= ${binary:Version}),
          libdbusmenu-glib-dev (>= 0.1.8),
          libdbus-glib-1-dev (>= 0.76),
          libgtk2.0-dev,
@@ -106,7 +77,6 @@ Description:  Application Indicators
 Package: libappindicator3-1
 Section: libs
 Architecture: any
-Pre-Depends: multiarch-support,
 Depends: ${shlibs:Depends},
          ${misc:Depends},
 Suggests: indicator-application (>= 0.2.93),

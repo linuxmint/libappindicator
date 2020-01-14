@@ -78,7 +78,7 @@ libappindicator_la_LDFLAGS = \
 	$(COVERAGE_LDFLAGS) \
 	-version-info 1:0:0 \
 	-no-undefined \
-	-export-symbols-regex "^[^_d].*"
+	-export-symbols-regex "^app_indicator_.*"
 
 libappindicator_la_CFLAGS = \
 	$(LIBRARY_CFLAGS) \
@@ -156,39 +156,27 @@ INTROSPECTION_COMPILER_ARGS = --includedir=$(builddir)
 
 if HAVE_INTROSPECTION
 
-if USE_GTK3
 introspection_sources = \
 	$(addprefix $(srcdir)/,app-indicator.c) \
 	$(addprefix $(srcdir)/,$(libappindicator_headers))
-else
-introspection_sources = \
-	$(addprefix $(srcdir)/,app-indicator-gtk2.c) \
-	$(addprefix $(srcdir)/,$(libappindicator_headers))
-endif
 
-AppIndicator$(VER)-0.1.gir: libappindicator$(VER).la
+AppIndicator3-0.1.gir: libappindicator3.la
 
-AppIndicator_0_1_gir_INCLUDES = \
+AppIndicator3_0_1_gir_INCLUDES = \
     GObject-2.0 \
     $(GTKGIR)
-AppIndicator_0_1_gir_CFLAGS = $(LIBRARY_CFLAGS) -I$(srcdir) -I$(top_builddir)/src
-AppIndicator_0_1_gir_LIBS = libappindicator$(VER).la
-AppIndicator_0_1_gir_FILES = $(introspection_sources)
-# AppIndicator_0_1_gir_NAMESPACE = AppIndicator
-
-AppIndicator3_0_1_gir_INCLUDES = $(AppIndicator_0_1_gir_INCLUDES)
-AppIndicator3_0_1_gir_CFLAGS = $(AppIndicator_0_1_gir_CFLAGS)
-AppIndicator3_0_1_gir_LIBS = $(AppIndicator_0_1_gir_LIBS)
-AppIndicator3_0_1_gir_FILES = $(AppIndicator_0_1_gir_FILES)
+AppIndicator3_0_1_gir_CFLAGS = $(LIBRARY_CFLAGS) -I$(srcdir) -I$(top_builddir)/src
+AppIndicator3_0_1_gir_LIBS = libappindicator3.la
+AppIndicator3_0_1_gir_FILES = $(introspection_sources)
 # AppIndicator3_0_1_gir_NAMESPACE = AppIndicator
 
-INTROSPECTION_GIRS += AppIndicator$(VER)-0.1.gir
+INTROSPECTION_GIRS += AppIndicator3-0.1.gir
 
-AppIndicator$(VER)-0.1.metadata: AppIndicator$(VER)-0.1.gir
+AppIndicator3-0.1.metadata: AppIndicator3-0.1.gir
 	cp -f $(srcdir)/$@.in $@
 
-BUILT_SOURCES += AppIndicator$(VER)-0.1.metadata
-CLEANFILES += AppIndicator$(VER)-0.1.metadata
+BUILT_SOURCES += AppIndicator3-0.1.metadata
+CLEANFILES += AppIndicator3-0.1.metadata
 
 girdir = $(datadir)/gir-1.0
 gir_DATA = $(INTROSPECTION_GIRS)

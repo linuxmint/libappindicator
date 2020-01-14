@@ -1,10 +1,7 @@
+SUBDIRS =
+
 if USE_GTK3
-SUBDIRS =	\
-	vala
-else
-SUBDIRS =		\
-	python		\
-	vala
+SUBDIRS += vala
 endif
 
 if HAS_MONO
